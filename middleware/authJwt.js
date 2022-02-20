@@ -24,8 +24,8 @@ const verifyJWT = function (req, res, next) {
                     console.log('aborting request');
                     req.removeListener('data', gotData);
                     req.removeListener('end', reqEnd);
-                    // res.header('Connection', 'close');
-                    // return res.send(413, 'Upload too large');
+                    res.header('Connection', 'close');
+                    return res.send(413, 'Upload too large');
                     // throw new Error(err.message)
                     next(err)
                 } else {
