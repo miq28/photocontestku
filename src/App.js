@@ -36,6 +36,7 @@ import 'react-awesome-lightbox/build/style.css';
 import InvoicePreview from './pages/invoices/InvoicePreview';
 import InvoicePaid from './pages/invoices/InvoicePaid';
 import NotLogin from './pages/NotLogin';
+import HomePage from './pages/HomePage';
 
 function App() {
   const dispatch = useDispatch();
@@ -45,19 +46,20 @@ function App() {
       var config = {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       };
+
       axios
-        .get(`${URL_API}/user/one`, config)
+        .get(`${URL_API}/users/profile/userid/${localStorage.getItem('userid')}`, config)
         .then((res) => {
           dispatch({
             type: 'LOGIN',
             payload: {
-              id: res.data.result.id,
+              id: res.data.data.userId,
               token: localStorage.getItem('token'),
-              name: res.data.result.name,
-              businessName: res.data.result.businessName,
-              photo: res.data.result.photo,
-              address: res.data.result.address,
-              email: res.data.result.email,
+              name: res.data.data.name,
+              businessName: res.data.data.name,
+              photo: res.data.data.profilePhoto,
+              address: res.data.data.address,
+              email: res.data.data.userId,
             },
           });
         })
@@ -68,6 +70,31 @@ function App() {
             window.location = '/';
           }, 2000);
         });
+
+      // axios
+      //   .get(`${URL_API}/user/one`, config)
+      //   .then((res) => {
+      //     dispatch({
+      //       type: 'LOGIN',
+      //       payload: {
+      //         id: res.data.result.id,
+      //         token: localStorage.getItem('token'),
+      //         name: res.data.result.name,
+      //         businessName: res.data.result.businessName,
+      //         photo: res.data.result.photo,
+      //         address: res.data.result.address,
+      //         email: res.data.result.email,
+      //       },
+      //     });
+      //   })
+      //   .catch((err) => {
+      //     console.log('masuk kesini')
+      //     console.log(err);
+      //     localStorage.removeItem('token');
+      //     setTimeout(() => {
+      //       window.location = '/';
+      //     }, 2000);
+      //   });
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -117,6 +144,7 @@ function App() {
           <Route exact path="/invoice/edit/:id" component={NotLogin} />
           <Route exact path="/invoice/preview/:id" component={NotLogin} />
           <Route exact path="/invoice/paid/:id" component={NotLogin} />
+          <Route exact path="/homepage" component={NotLogin} />
           <Route path="*" component={NotFound} />
         </Switch>
       </>
@@ -168,6 +196,7 @@ function App() {
         <Route exact path="/temp/classic/:id" component={TempClassic} />
         <Route exact path="/temp/minimalism/:id" component={TempMinimalism} />
         <Route exact path="/temp/darkmode/:id" component={TempDarkmode} />
+        <Route exact path="/homepage" component={HomePage} />
         <Route path="*" component={NotFound} />
       </Switch>
     </>

@@ -21,28 +21,29 @@ function Login() {
     history.push('/');
   }
 
-  function handleSubmit(event) {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setIsLoading(true);
     var data = {
       email: email,
       password: password,
-      confirmPassword: password,
-      name: name,
-      businessName: bsName,
+      username: name,
     };
+    // const response = await axios.post(`${URL_API}/users/signup`, data);
+    // console.log(response);
     axios
-      .post(`${URL_API}/auth/signup`, data)
+      .post(`${URL_API}/users/signup`, data)
       .then((res) => {
         dispatch(
           toastSuccess('Success! You are now logged in with your new account!')
         );
         localStorage.setItem('token', res.data.token);
         setTimeout(() => {
-          window.location = '/';
+          window.location = '/HomePage';
         }, 3000);
       })
       .catch((err) => {
+        console.log(err.response.data)
         dispatch(toastError(`${err.response.data.message}`));
         setIsLoading(false);
       });
@@ -68,28 +69,18 @@ function Login() {
               Already have account? <Link to="/login">Login</Link>
             </div>
           </div>
-          <div className="port-text">Register</div>
+          <div className="port-text">Create an account</div>
           <div className="user-form">
             <Form onSubmit={handleSubmit}>
               <Form.Group size="lg" controlId="name">
-                <Form.Label>Name</Form.Label>
+                <Form.Label>Username</Form.Label>
                 <Form.Control
                   autoFocus
                   required
                   type="text"
                   value={name}
-                  placeholder="Justin Junaedi"
+                  placeholder="Diora"
                   onChange={(e) => setName(e.target.value)}
-                />
-              </Form.Group>
-              <Form.Group size="lg" controlId="bsName">
-                <Form.Label>Business Name</Form.Label>
-                <Form.Control
-                  required
-                  type="text"
-                  value={bsName}
-                  placeholder="Justin Studio"
-                  onChange={(e) => setBsName(e.target.value)}
                 />
               </Form.Group>
               <Form.Group size="lg" controlId="email">
@@ -98,7 +89,7 @@ function Login() {
                   required
                   type="email"
                   value={email}
-                  placeholder="e.g. justinjunaedi@gmail.com"
+                  placeholder="e.g. Diora@gmail.com"
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </Form.Group>

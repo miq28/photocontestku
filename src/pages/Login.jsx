@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Button, Form } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { URL_API } from '../helper/url';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -17,49 +17,67 @@ function Login() {
   const [password, setPassword] = useState('');
   const auth = useSelector((state) => state.auth);
   const dispatch = useDispatch();
-
-  if (auth.isLogin === true) {
-    window.location = '/';
-  }
+  const history = useHistory()
 
   function handleSubmit(event) {
     event.preventDefault();
     setIsLoading(true);
     var data = {
-      email: email,
+      username: email,
       password: password,
     };
     axios
-      .post(`${URL_API}/auth/signin`, data)
+      .post(`${URL_API}/users/login`, data)
       .then((res) => {
+        // console.log('Res1', res.data.data)
         dispatch(toastInfo('Please wait getting user data...'));
-        var configGetOneUser = {
-          headers: { Authorization: `Bearer ${res.data.token}` },
-        };
-        axios
-          .get(`${URL_API}/user/one`, configGetOneUser)
-          .then((res2) => {
-            dispatch(toastSuccess('You are now logged in!'));
-            setTimeout(() => {
-              dispatch({
-                type: 'LOGIN',
-                payload: {
-                  id: res2.data.result.id,
-                  token: res.data.token,
-                  name: res2.data.result.name,
-                  businessName: res2.data.result.businessName,
-                  photo: res2.data.result.photo,
-                  address: res2.data.result.address,
-                  email: res2.data.result.email,
-                },
-              });
-              localStorage.setItem('token', res.data.token);
-            }, 2000);
-          })
-          .catch((err2) => {
-            dispatch(toastError(`${err2.response.data.message}`));
-            setIsLoading(false);
+
+        setTimeout(() => {
+          dispatch({
+            type: 'LOGIN',
+            payload: {
+              id: res.data.data.id,
+              token: res.data.data.token,
+              name: res.data.data.profile.name,
+              businessName: res.data.data.profile.name,
+              photo: res.data.data.profile.profilePhoto,
+              address: res.data.data.profile.address,
+              email: res.data.data.email,
+            },
           });
+          localStorage.setItem('userid', res.data.data.id);
+          localStorage.setItem('token', res.data.data.token);
+          window.location = '/homepage';
+        }, 2000);
+
+        // var configGetOneUser = {
+        //   headers: { Authorization: `Bearer ${res.data.token}` },
+        // };
+        // axios
+        //   .get(`${URL_API}/users`, configGetOneUser)
+        //   .then((res2) => {
+        //     console.log('Res2', res2)
+        //     dispatch(toastSuccess('You are now logged in!'));
+        //     setTimeout(() => {
+        //       dispatch({
+        //         type: 'LOGIN',
+        //         payload: {
+        //           id: res2.data.result.id,
+        //           token: res.data.token,
+        //           name: res2.data.result.name,
+        //           businessName: res2.data.result.businessName,
+        //           photo: res2.data.result.photo,
+        //           address: res2.data.result.address,
+        //           email: res2.data.result.email,
+        //         },
+        //       });
+        //       localStorage.setItem('token', res.data.token);
+        //     }, 2000);
+        //   })
+        //   .catch((err2) => {
+        //     dispatch(toastError(`${err2.response.data.message}`));
+        //     setIsLoading(false);
+        //   });
       })
       .catch((err) => {
         dispatch(toastError(`${err.response.data.message}`));
@@ -91,13 +109,13 @@ function Login() {
           <div className="user-form">
             <Form onSubmit={handleSubmit}>
               <Form.Group size="lg" controlId="email">
-                <Form.Label>Email</Form.Label>
+                <Form.Label>Username</Form.Label>
                 <Form.Control
                   autoFocus
                   className="custom-form-port"
-                  type="email"
+                  type="text"
                   value={email}
-                  placeholder="e.g. justinjunaedi@gmail.com"
+                  placeholder="e.g. Diora"
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </Form.Group>

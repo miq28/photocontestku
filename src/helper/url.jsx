@@ -1,1 +1,1 @@
-export const URL_API = 'https://portraiture.gabatch11.my.id';
+export const URL_API = 'https://ptb-photocontest.herokuapp.com/api';
