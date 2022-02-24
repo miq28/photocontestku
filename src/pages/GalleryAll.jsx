@@ -23,8 +23,13 @@ function GalleryAll() {
   const fetchDataGalleryAll = async () => {
     setIsLoading(true);
     try {
-      let res = await axios.get(`${URL_API}/albums?skip=0&take=5`);
-      setCollections(res.data.data);
+      //ini yang server 1
+      // let res = await axios.get(`${URL_API}/albums?skip=0&take=5`);
+      // setCollections(res.data.data);
+
+      //ini yang server 2
+      let res = await axios.get(`${URL_API}/albums/testing/test`);
+      setCollections(res.data.result);
       let page = await fetchDataPage();
       setPageNumber(Math.ceil(page / 15));
       setIsLoading(false);
@@ -38,9 +43,9 @@ function GalleryAll() {
 
   const fetchDataPage = () => {
     return axios
-      .get(`${URL_API}/collection?limit=9999`)
+      .get(`${URL_API}/albums/testing/test`)
       .then((res) => {
-        return res.data.totalData;
+        return res.data.result;
       })
       .catch((err) => {
         dispatch(toastError(`${err.response.data.message}`));
@@ -53,7 +58,7 @@ function GalleryAll() {
       var res = await axios.get(
         `${URL_API}/collection?limit=15&page=${value - 1}`
       );
-      setCollections(res.data.data);
+      setCollections(res.data.result);
     } catch (error) {
       dispatch(toastError(`${error.response.data.message}`));
     }
