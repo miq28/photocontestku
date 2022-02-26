@@ -3,10 +3,12 @@ import axios from 'axios';
 import { Form, Button } from 'react-bootstrap';
 import { URL_API } from '../helper/url';
 import { useDispatch } from 'react-redux';
-import { toastError, toastSuccess } from '../redux/actions/toastActions';
+import { useSelector } from 'react-redux';
+import { toastError, toastSuccess, toastWarning } from '../redux/actions/toastActions';
 import HeaderProps from '../components/HeaderProps';
 
 function Profile() {
+  const auth = useSelector((state) => state.auth);
   const [businessName, setBusinessName] = useState();
   const [address, setAddress] = useState('');
   const [photo, setPhoto] = useState();
@@ -16,30 +18,80 @@ function Profile() {
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
 
+  // useEffect(() => {
+  //   if (localStorage.getItem('token')) {
+  //     fetchUser();
+  //   }
+  // }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // const fetchUser = async () => {
+  //   setIsLoading(true);
+  //   try {
+  //     var config = {
+  //       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+  //     };
+  //     var res = await axios.get(`${URL_API}/user/one`, config);
+  //     setBusinessName(res.data.result.businessName);
+  //     if (res.data.result.address !== null) {
+  //       setAddress(res.data.result.address);
+  //     }
+  //     setEmail(res.data.result.email);
+  //     setName(res.data.result.name);
+  //     setPhoto(res.data.result.photo);
+  //     setIsLoading(false);
+  //   } catch (error) {
+  //     dispatch(toastError(`${error.response.data.message}`));
+  //     setIsLoading(false);
+  //   }
+  // };
+
   useEffect(() => {
-    if (localStorage.getItem('token')) {
+    if (auth.isLogin) {
+      setBusinessName(auth.businessName);
+      setAddress(auth.address);
+      setEmail(auth.email);
+      setName(auth.name);
+      setPhoto(auth.photo);
+      setIsLoading(false);
       fetchUser();
+    } else {
+      dispatch(toastWarning(`Kamu belum login 😍`));
+      window.location = '/';
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchUser = async () => {
     setIsLoading(true);
     try {
-      var config = {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      };
-      var res = await axios.get(`${URL_API}/user/one`, config);
-      setBusinessName(res.data.result.businessName);
-      if (res.data.result.address !== null) {
-        setAddress(res.data.result.address);
+      var res = await axios.get(`${URL_API}/users/profile/userid/${auth.id}`);
+      let respon;
+      if (res.status === 200) {
+        const respon = res.data.result
+        console.log(respon)
+        setBusinessName(respon.name);
+        setAddress(respon.address);
+        setEmail(respon.email);
+        setName(respon.name);
+        setPhoto(respon.profilePhoto);
+        setIsLoading(false);
       }
-      setEmail(res.data.result.email);
-      setName(res.data.result.name);
-      setPhoto(res.data.result.photo);
+      else {
+        console.log(respon.message)
+        dispatch(toastError(`${respon.message}`));
+      }
+    } catch (err) {
       setIsLoading(false);
-    } catch (error) {
-      dispatch(toastError(`${error.response.data.message}`));
-      setIsLoading(false);
+      if (true) {
+        if (err.response) {
+          if (err.response.data.message) {
+            dispatch(toastError(err.response.data.message));
+          }
+        } else if (err.request) {
+          console.log(err.request);
+        } else {
+          console.log('Error', err.message);
+        }
+      }
     }
   };
 
@@ -52,29 +104,56 @@ function Profile() {
     e.preventDefault();
     var bodyFormData = new FormData();
     if (picture) {
-      bodyFormData.append('photo', photo);
+      // bodyFormData.append('photo', photo);
     }
-    bodyFormData.append('name', name);
-    bodyFormData.append('businessName', businessName);
-    bodyFormData.append('address', address);
-    bodyFormData.append('email', email);
+    const data = {
+      name: name,
+      address: address,
+      photo: photo
+    }
+    // bodyFormData.append('name', name);
+    // // bodyFormData.append('businessName', businessName);
+    // bodyFormData.append('address', address);
+    // bodyFormData.append('email', email);
     axios({
       method: 'put',
-      url: `${URL_API}/user`,
-      data: bodyFormData,
+      url: `${URL_API}/users/profile`,
+      data: data,
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
-        'Content-Type': 'multipart/form-data',
+        // 'Content-Type': 'multipart/form-data',
       },
     })
-      .then(() => {
-        dispatch(toastSuccess('Your profile has been updated!'));
-        setTimeout(() => {
-          window.location = '/dashboard';
-        }, 2000);
+      .then((res) => {
+        console.log(res.data)
+        if (res.status === 200) {
+          dispatch(toastSuccess('Your profile has been updated!'));
+          setTimeout(() => {
+            window.location = '/dashboard';
+          }, 2000);
+        } else {
+          if (res.data.message) {
+            if (Array.isArray(res.data.message)) {
+              console.log(res.data.message)
+              res.data.message.forEach(element => console.log(element));
+            }
+          }
+        }
       })
       .catch((err) => {
-        dispatch(toastError(`${err.response.data.message}`));
+        if (err.response.data.message) {
+          console.log(err.response.data.message)
+          if (Array.isArray(err.response.data.message)) {
+            (err.response.data.message).forEach(element => {
+              console.log(element)
+              dispatch(toastError(element));
+
+            });
+            
+          }
+        }
+        console.log(err.response)
+        
       });
   };
 
@@ -124,7 +203,7 @@ function Profile() {
               {picture ? (
                 <img src={picture} alt="logo" />
               ) : (
-                <img src={`${URL_API}${photo}`} alt="logo" />
+                <img src={`${photo}`} alt="logo" />
               )}
             </div>
           </div>

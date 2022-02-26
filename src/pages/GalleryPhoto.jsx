@@ -8,18 +8,6 @@ import { useDispatch } from 'react-redux';
 import { HiOutlineMail } from 'react-icons/hi';
 import Pagination from '@material-ui/lab/Pagination';
 
-const defaultBacks = [
-  {cover: "https://images.squarespace-cdn.com/content/v1/5a008604017db2ab70ad1255/1609178397549-AYQW1IRHGH5ADI8J65TU/JPC_Banner_V2.jpg?format=2500w", 
-id: "1",
-theme: "photographer",
-id_user: "1",
-title: "J & D Wedding",
-user: {
-  businessName: "J Studio"
-}},
-
-];
-
 function GalleryPhoto() {
   const { id } = useParams();
   const [image, setImage] = useState([]);
@@ -51,33 +39,47 @@ function GalleryPhoto() {
   }, [search]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchDataGalleryPhoto = async () => {
-    // setIsLoading(true);
-    // try {
-    //   var res = await axios.get(
-    //     `${URL_API}/collection/oneUser?limit=15&page=0&id_user=${id}`
-    //   );
-    //   setImage(res.data.result);
-    //   setImageBackup(res.data.result);
-    //   let getUser = await fetchUser();
-    //   for (let i = 0; i < getUser.length; i++) {
-    //     if (getUser[i].id === res.data.result[0].id_user) {
-    //       setStudioEmail(getUser[i].email);
-    //       setStudioImage(getUser[i].photo);
-    //       setStudioName(getUser[i].businessName);
-    //       break;
-    //     }
-    //   }
-    //   setPageNumber(Math.ceil(res.data.result.length / 15));
-    //   setIsLoading(false);
-    // } catch (error) {
-    //   dispatch(toastError(`${error.response.data.message}`));
-    //   setIsLoading(false);
-    // }
-    setImage(defaultBacks);
-    
+    setIsLoading(true);
+    try {
+      var res = await axios.get(
+        // `${URL_API}/collection/oneUser?limit=15&page=0&id_user=${id}`
+        `${URL_API}/albums/userid/${id}`
+      );
+      setImage(res.data.result);
+      setImageBackup(res.data.result);
+
+      let profile = await fetchProfile();
+      setStudioEmail(profile.name);
+      setStudioImage(profile.profilePhoto);
+      setStudioName(profile.name);
+
+      // let getUser = await fetchUser();
+      // for (let i = 0; i < getUser.length; i++) {
+      //   if (getUser[i].id === res.data.result[0].id_user) {
+      //     setStudioEmail(getUser[i].email);
+      //     setStudioImage(getUser[i].photo);
+      //     setStudioName(getUser[i].businessName);
+      //     break;
+      //   }
+      // }
+
+      setPageNumber(Math.ceil(res.data.result.length / 15));
+      setIsLoading(false);
+    } catch (error) {
+      dispatch(toastError(`${error.response.data.message}`));
+      setIsLoading(false);
+    }
+  };
+
+  const fetchProfile = () => {
+    // return axios.get(`${URL_API}/user`).then((res) => {
+    return axios.get(`${URL_API}/users/profile/userid/${id}`).then((res) => {
+      return res.data.result;
+    });
   };
 
   const fetchUser = () => {
+    // return axios.get(`${URL_API}/user`).then((res) => {
     return axios.get(`${URL_API}/user`).then((res) => {
       return res.data.result;
     });
@@ -97,7 +99,7 @@ function GalleryPhoto() {
   };
 
   const galleryPhotoImage = () => {
-    return defaultBacks.map((val, index) => {
+    return image.map((val, index) => {
       return (
         <div className="gallery-cards">
           <img
@@ -133,16 +135,11 @@ function GalleryPhoto() {
       <div className="galleryphoto-wrapper">
         <div className="gallery-head">
           <Link className="gallery-link" to="/gallery/all">
-            {/* <img
+            {<img
               className="gallery-logo"
-              src={`${URL_API}${studioImage}`}
+              src={`${studioImage}`}
               alt=""
-            /> */}
-            <img
-              className="gallery-logo"
-              src={`https://s3-alpha-sig.figma.com/img/3e7e/77a8/d5a673d6759029a47828edc6e3e7fe4b?Expires=1646611200&Signature=GcOLjhuEalYD5Z74dAMYwAJJiMrcBW3ShcTeE~8jhPYTpcUJTC2BZxlEiU3J1-pUswTyoA2YVQybQVApcqNPJS0kKxqX2Xr7M2LcR6zl6MNQBYtlCD-tZ~FRTdoWiDpiUoDzGeVDNcoqjkM6iXA3yeRJp4RDFrO6bdm3NtApArGb87M7MQ3vJqmmLLdbmzeZzQLXYgUc7z3VX4Maz2fHf8-hFvYaPShBdjIG06P0SSvCeRpW2BAZuULLPEe6nJxZKcjlgXLG9T3DSzpYq5cCBFDYdusMyo~lSwK76MacHn-uFTHuUzfF9zazbdMLqDaq08IG7jrp99cMZlQV9KN8aQ__&Key-Pair-Id=APKAINTVSUGEWH5XD5UA`}
-              alt=""
-            />
+            />}
             <div className="logo-name">{studioName}</div>
           </Link>
           <div className="gallery-search">

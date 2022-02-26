@@ -1,13 +1,38 @@
-const initialState = {
+import jwt_decode from "jwt-decode";
+
+let initialState = {
   id: '',
-  token: localStorage.getItem('token') || '',
-  isLogin: localStorage.getItem('token') ? true : false,
+  token: '',
+  isLogin: false,
   name: '',
   businessName: '',
   photo: '',
   address: '',
   email: '',
 };
+
+const jwToken = localStorage.getItem('token')
+if (jwToken) {
+  try {  
+    const decoded = jwt_decode(jwToken);
+    console.log(decoded)
+    // if no error, update initial state
+    initialState = {
+      id: decoded.id,
+      token: jwToken,
+      isLogin: true,
+      name: decoded.userName,
+      businessName: decoded.userName,
+      photo: '',
+      address: '',
+      email: '',
+    }
+  } catch (err) {
+    console.log(err)
+  }
+} else {
+  console.log('jwToken not exist is localStorage')
+}
 
 const authReducers = (state = initialState, action) => {
   switch (action.type) {

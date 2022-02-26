@@ -37,35 +37,40 @@ import InvoicePreview from './pages/invoices/InvoicePreview';
 import InvoicePaid from './pages/invoices/InvoicePaid';
 import NotLogin from './pages/NotLogin';
 import HomePage from './pages/HomePage';
+import jwt_decode from "jwt-decode";
 
 function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (localStorage.getItem('token')) {
-      var config = {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      };
+    const jwtToken = localStorage.getItem('token')
+    if (jwtToken) {
+      const decoded = jwt_decode(jwtToken)
+      console.log(decoded)
+      // var config = {
+      //   headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      // };
 
       axios
-        .get(`${URL_API}/users/profile/userid/${localStorage.getItem('userid')}`, config)
+        // .get(`${URL_API}/users/profile/userid/${decoded.id}`, config)
+        .get(`${URL_API}/users/profile/userid/${decoded.id}`)
         .then((res) => {
           dispatch({
             type: 'LOGIN',
             payload: {
-              id: res.data.data.userId,
+              id: res.data.result.userId,
               token: localStorage.getItem('token'),
-              name: res.data.data.name,
-              businessName: res.data.data.name,
-              photo: res.data.data.profilePhoto,
-              address: res.data.data.address,
-              email: res.data.data.userId,
+              name: res.data.result.name,
+              businessName: res.data.result.name,
+              photo: res.data.result.profilePhoto,
+              address: res.data.result.address,
+              email: res.data.result.userId,
             },
           });
         })
         .catch((err) => {
           console.log(err);
-          localStorage.removeItem('token');
+          // localStorage.removeItem('token');
           setTimeout(() => {
             window.location = '/';
           }, 2000);

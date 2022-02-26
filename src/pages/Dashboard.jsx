@@ -309,7 +309,7 @@ function Dashboard() {
         <div className="dashboard-background">
           <div className="dashboard-background-container">
             <div className="dashboard-logo">
-              <img src={`${URL_API}${auth.photo}`} alt="logo" />
+              <img src={`${auth.photo}`} alt="logo" />
             </div>
             <div className="dashboard-name">{auth.businessName}</div>
             <div className="dashboard-button">
