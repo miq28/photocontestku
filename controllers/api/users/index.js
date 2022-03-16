@@ -13,9 +13,17 @@ const getMany = async (req, res, next) => {
         take = parseInt(take)
 
         if (take > 100) take = 100
-        let option = {}
-        option.skip = skip
-        option.take = take
+        let option = {
+            skip,
+            take,
+            include: {
+                membership: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
+        }
 
         const result = await User.findMany(option)
         req.result = result

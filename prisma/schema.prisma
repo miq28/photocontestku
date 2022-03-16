@@ -19,9 +19,10 @@ enum Role {
 
 model Membership {
   id                             String      @id @default(cuid())
-  name                           String      @unique @db.VarChar(254)
+  name                           String      @unique @db.VarChar(32)
+  monthlyFee                     Decimal     @db.Money
   maxEntriesPerContest           Int
-  maxContestEntry                BigInt
+  maxContestEntry                Int
   discountPhotoAward             Decimal
   canCreateOwnContest            Boolean
   canEnterSubscriberOnlyContests Boolean
@@ -30,7 +31,7 @@ model Membership {
   canCreateOwnCustomUrl          Boolean
   supportType                    SupportType
   user                           User[]
-  isActive                       Boolean     @default(false)
+  isActive                       Boolean     @default(true)
 }
 
 enum SupportType {
@@ -50,7 +51,7 @@ model User {
   profile                  Profile?
   copyright                String?
   about                    String?
-  rankingPoints            BigInt             @default(0)
+  rankingPoints            Int                @default(0)
   photos                   Photo[]            @relation("photos")
   likedPhotos              Photo[]            @relation("likedphotos")
   albums                   Album[]
@@ -156,69 +157,69 @@ model Tag {
 }
 
 model CommunityContest {
-  id                  String           @id @default(cuid())
-  createdBy           User?            @relation(fields: [createdById], references: [id])
-  createdById         String?
-  title               String
+  id                 String          @id @default(cuid())
+  createdBy          User?           @relation(fields: [createdById], references: [id])
+  createdById        String?
+  title              String
   constestCategory   ContestCategory @relation(fields: [constestCategoryId], references: [id], onDelete: Cascade)
   constestCategoryId String
-  startAt             DateTime         @default(now())
-  endAt               DateTime
-  ratingStartAt       DateTime
-  ratingEndtAt        DateTime
-  coverPhotoPath      String
-  isJudged            Boolean          @default(false)
-  brief               String?
-  entryPhoto          Photo?           @relation("entryCommunityContest", fields: [entryPhotoId], references: [id])
-  entryPhotoId        String?
-  shortlistPhoto      Photo?           @relation("shortlistCommunityContest", fields: [shortlistPhotoId], references: [id])
-  shortlistPhotoId    String?
-  winnerPhoto         Photo?           @relation("winnerCommunityContest", fields: [winnerPhotoId], references: [id])
-  winnerPhotoId       String?
-  tags                Tag[]
-  likes               Int?             @default(0)
-  isActive            Boolean          @default(false)
-  createdAt           DateTime         @default(now())
-  updatedAt           DateTime         @default(now())
+  startAt            DateTime        @default(now())
+  endAt              DateTime
+  ratingStartAt      DateTime
+  ratingEndtAt       DateTime
+  coverPhotoPath     String
+  isJudged           Boolean         @default(false)
+  brief              String?
+  entryPhoto         Photo?          @relation("entryCommunityContest", fields: [entryPhotoId], references: [id])
+  entryPhotoId       String?
+  shortlistPhoto     Photo?          @relation("shortlistCommunityContest", fields: [shortlistPhotoId], references: [id])
+  shortlistPhotoId   String?
+  winnerPhoto        Photo?          @relation("winnerCommunityContest", fields: [winnerPhotoId], references: [id])
+  winnerPhotoId      String?
+  tags               Tag[]
+  likes              Int?            @default(0)
+  isActive           Boolean         @default(false)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @default(now())
 
 }
 
 model PremiumContest {
-  id                  String           @id @default(cuid())
-  title               String
+  id                 String          @id @default(cuid())
+  title              String
   constestCategory   ContestCategory @relation(fields: [constestCategoryId], references: [id], onDelete: Cascade)
   constestCategoryId String
-  startAt             DateTime         @default(now())
-  endAt               DateTime
-  judgeStartAt        DateTime
-  judgeEndAt          DateTime
-  coverPhotoPath      String
-  isFreeEntry         Boolean          @default(false)
-  isExpertJudged      Boolean          @default(false)
-  expertJudges        ExpertJudge[]
-  isCrowdVoted        Boolean          @default(false)
-  isRanked            Boolean          @default(false)
-  isAwarded           Boolean          @default(false)
-  brief               String?
-  briefDetail         String?
-  prizeDetail         String?
-  howItWorks          String?
-  entryPhoto          Photo?           @relation("entryPremiumContest", fields: [entryPhotoId], references: [id])
-  entryPhotoId        String?
-  shortlistPhoto      Photo?           @relation("shortlistPremiumContest", fields: [shortlistPhotoId], references: [id])
-  shortlistPhotoId    String?
-  winnerPhoto         Photo?           @relation("winnerPremiumContest", fields: [winnerPhotoId], references: [id])
-  winnerPhotoId       String?
-  tags                Tag[]
-  likes               Int?             @default(0)
-  isActive            Boolean          @default(false)
-  createdAt           DateTime         @default(now())
-  updatedAt           DateTime         @default(now())
+  startAt            DateTime        @default(now())
+  endAt              DateTime
+  judgeStartAt       DateTime
+  judgeEndAt         DateTime
+  coverPhotoPath     String
+  isFreeEntry        Boolean         @default(false)
+  isExpertJudged     Boolean         @default(false)
+  expertJudges       ExpertJudge[]
+  isCrowdVoted       Boolean         @default(false)
+  isRanked           Boolean         @default(false)
+  isAwarded          Boolean         @default(false)
+  brief              String?
+  briefDetail        String?
+  prizeDetail        String?
+  howItWorks         String?
+  entryPhoto         Photo?          @relation("entryPremiumContest", fields: [entryPhotoId], references: [id])
+  entryPhotoId       String?
+  shortlistPhoto     Photo?          @relation("shortlistPremiumContest", fields: [shortlistPhotoId], references: [id])
+  shortlistPhotoId   String?
+  winnerPhoto        Photo?          @relation("winnerPremiumContest", fields: [winnerPhotoId], references: [id])
+  winnerPhotoId      String?
+  tags               Tag[]
+  likes              Int?            @default(0)
+  isActive           Boolean         @default(false)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @default(now())
 }
 
 model ContestCategory {
   id               String             @id @default(cuid())
-  name             String             @db.VarChar(64)
+  name             String             @unique @db.VarChar(64)
   CommunityContest CommunityContest[]
   PremiumContest   PremiumContest[]
   createdAt        DateTime           @default(now())
@@ -261,7 +262,7 @@ model ExpertJudge {
 //   id                  String   @id @default(cuid())
 //   title               String
 //   contestTypeId       String   @default(cuid())
-//   constestCathegoryId String   @default(cuid())
+//   constestCategoryId String   @default(cuid())
 //   startAt             DateTime @default(now())
 //   endAt               DateTime
 //   judgeStartAt        DateTime

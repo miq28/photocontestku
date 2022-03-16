@@ -1,6 +1,6 @@
 const { PrismaClient } = require('@prisma/client')
 // import the "Role" enum we declare in the schema.prisma
-const { Role } = require('@prisma/client')
+const { Role, SupportType } = require('@prisma/client')
 
 const globalConfig = {
     datasources: {
@@ -30,6 +30,11 @@ const User = prisma.user
 const Profile = prisma.profile
 const Photo = prisma.photo
 const Album = prisma.album
+const Membership = prisma.membership
+const ContestCategory = prisma.ContestCategory
+const ExpertJudge = prisma.expertjudge
+const CommunityContest = prisma.communitycontest
+const PremiumContest = prisma.premiumcontest
 
 // event emitters
 // prisma.$on('query', (e) => {
@@ -52,5 +57,11 @@ module.exports = {
     User,
     Profile,
     Photo,
-    Album
+    Album,
+    SupportType,
+    Membership,
+    ExpertJudge,
+    ContestCategory,
+    CommunityContest,
+    PremiumContest
 }

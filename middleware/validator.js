@@ -1,4 +1,5 @@
 // https://express-validator.github.io/docs/
+// https://github.com/validatorjs/validator.js
 const { body, check, oneOf, checkSchema, validationResult } = require('express-validator');
 
 /**
@@ -67,6 +68,94 @@ const descriptionChain =
         .withMessage('field not exist')
         .trim()
         .isLength({ min: 0, max: 254 })
+const monthlyFee =
+    check('monthlyFee')
+        .exists()
+        .withMessage('field not exist')
+        .isDecimal()
+        .withMessage('must be a decimal number')
+        .toFloat()
+const maxEntriesPerContest =
+    check('maxEntriesPerContest')
+        .exists()
+        .withMessage('field not exist')
+        .isInt()
+        .withMessage('must be an integer')
+        .toInt()
+const maxContestEntry =
+    check('maxContestEntry')
+        .exists()
+        .withMessage('field not exist')
+        .isInt()
+        .withMessage('must be an integer')
+        .toInt()
+const discountPhotoAward =
+    check('discountPhotoAward')
+        .exists()
+        .withMessage('field not exist')
+        .isDecimal()
+        .withMessage('must be a decimal number')
+        .toFloat()
+const canCreateOwnContest =
+    check('canCreateOwnContest')
+        .exists()
+        .withMessage('field not exist')
+        .isBoolean()
+        .withMessage('must be a boolean')
+        .toBoolean()
+const canEnterSubscriberOnlyContests =
+    check('canEnterSubscriberOnlyContests')
+        .exists()
+        .withMessage('field not exist')
+        .isBoolean()
+        .withMessage('must be a boolean')
+        .toBoolean()
+const isFlagNotOnBrief =
+    check('isFlagNotOnBrief')
+        .exists()
+        .withMessage('field not exist')
+        .isBoolean()
+        .withMessage('must be a boolean')
+        .toBoolean()
+const canGetDiscountsWithTopBrands =
+    check('canGetDiscountsWithTopBrands')
+        .exists()
+        .withMessage('field not exist')
+        .isBoolean()
+        .withMessage('must be a boolean')
+        .toBoolean()
+const canCreateOwnCustomUrl =
+    check('canCreateOwnCustomUrl')
+        .exists()
+        .withMessage('field not exist')
+        .isBoolean()
+        .withMessage('must be a boolean')
+        .toBoolean()
+const supportType =
+    body('supportType')
+        .exists()
+        .withMessage('field not exist')
+        .notEmpty()
+        .withMessage('cannot be empty')
+        .isIn(['BASIC', 'PRIORITY'])
+        .withMessage('is not in the list')
+const isActive =
+    check('isActive')
+        .optional()
+        .isBoolean()
+        .withMessage('must be a boolean')
+        .toBoolean()
+const nameContestCategory =
+    body('name')
+        .exists()
+        .withMessage('field not exist')
+        .escape()
+        .trim()
+        .isLength({ min: 3, max: 32 })
+        .withMessage('minimum 3 and maximum 32 characters')
+        .isAscii()
+        .withMessage('only Ascii characters are allowed')
+
 /**
  * OPTIONAL FIELDS
  * If these fields do not exist in the request
@@ -130,6 +219,23 @@ const ValidateCreateAlbum = [
     titleChain,
     descriptionChain
 ]
+const ValidateCreateMembership = [
+    nameChain,
+    monthlyFee,
+    maxEntriesPerContest,
+    maxContestEntry,
+    discountPhotoAward,
+    canCreateOwnContest,
+    canEnterSubscriberOnlyContests,
+    isFlagNotOnBrief,
+    canGetDiscountsWithTopBrands,
+    canCreateOwnCustomUrl,
+    supportType,
+    isActive
+]
+const ValidateCreateContestCategory = [
+    nameContestCategory
+]
 
 /**
  * Validation check result routine
@@ -158,5 +264,7 @@ module.exports = {
     ValidateLogin,
     ValidateUpdateProfile,
     ValidateCreateAlbum,
+    ValidateCreateMembership,
+    ValidateCreateContestCategory,
     CheckValidatorResult
 }
