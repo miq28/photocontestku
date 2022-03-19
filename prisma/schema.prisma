@@ -91,6 +91,8 @@ model Photo {
   title                      String?            @db.VarChar(254)
   description                String?
   path                       String             @unique
+  asset_id                   String?            @unique
+  public_id                  String?            @unique
   photoDetail                PhotoDetail?
   user                       User               @relation("photos", fields: [userId], references: [id], onDelete: Cascade)
   userId                     String
@@ -108,28 +110,30 @@ model Photo {
 }
 
 model PhotoDetail {
-  photo        Photo    @relation(fields: [photoId], references: [id], onDelete: Cascade)
-  photoId      String   @id @default(cuid())
-  fileName     String   @unique
+  photo        Photo     @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  photoId      String    @id @default(cuid())
+  fileName     String    @unique
   originalName String
   mimeType     String
   encoding     String
   size         Int
   width        Int?
   height       Int?
-  isPrivate    Boolean  @default(false)
-  views        Int?     @default(0)
-  likes        Int?     @default(0)
-  downloaded   Int?     @default(0)
-  starRating   Float?   @default(0)
+  isPrivate    Boolean   @default(false)
+  views        Int?      @default(0)
+  likes        Int?      @default(0)
+  downloaded   Int?      @default(0)
+  starRating   Float?    @default(0)
   cameraMake   String?
   cameraModel  String?
   shutterSpeed String?
   aperture     String?
-  focalLength  String?
+  focalLength  Float?
+  equiv35      Float?
   iso          Int?
-  lat          Decimal?
-  lon          Decimal?
+  lat          Float?    @db.DoublePrecision
+  lon          Float?    @db.DoublePrecision
+  dtOriginal   DateTime?
 }
 
 model Album {
@@ -148,8 +152,7 @@ model Album {
 }
 
 model Tag {
-  id                String             @id @default(cuid())
-  name              String             @unique @db.VarChar(64)
+  name              String             @id @db.VarChar(64)
   photos            Photo[]
   albums            Album[]
   communityContests CommunityContest[]
@@ -157,31 +160,40 @@ model Tag {
 }
 
 model CommunityContest {
-  id                 String          @id @default(cuid())
-  createdBy          User?           @relation(fields: [createdById], references: [id])
+  id                 String                      @id @default(cuid())
+  createdBy          User?                       @relation(fields: [createdById], references: [id])
   createdById        String?
   title              String
-  constestCategory   ContestCategory @relation(fields: [constestCategoryId], references: [id], onDelete: Cascade)
+  constestCategory   ContestCategory             @relation(fields: [constestCategoryId], references: [id], onDelete: Cascade)
   constestCategoryId String
-  startAt            DateTime        @default(now())
+  coverPhoto         CommunityContestCoverPhoto?
+  startAt            DateTime                    @default(now())
   endAt              DateTime
   ratingStartAt      DateTime
   ratingEndtAt       DateTime
-  coverPhotoPath     String
-  isJudged           Boolean         @default(false)
+  isJudged           Boolean                     @default(false)
   brief              String?
-  entryPhoto         Photo?          @relation("entryCommunityContest", fields: [entryPhotoId], references: [id])
+  entryPhoto         Photo?                      @relation("entryCommunityContest", fields: [entryPhotoId], references: [id])
   entryPhotoId       String?
-  shortlistPhoto     Photo?          @relation("shortlistCommunityContest", fields: [shortlistPhotoId], references: [id])
+  shortlistPhoto     Photo?                      @relation("shortlistCommunityContest", fields: [shortlistPhotoId], references: [id])
   shortlistPhotoId   String?
-  winnerPhoto        Photo?          @relation("winnerCommunityContest", fields: [winnerPhotoId], references: [id])
+  winnerPhoto        Photo?                      @relation("winnerCommunityContest", fields: [winnerPhotoId], references: [id])
   winnerPhotoId      String?
   tags               Tag[]
-  likes              Int?            @default(0)
-  isActive           Boolean         @default(false)
-  createdAt          DateTime        @default(now())
-  updatedAt          DateTime        @default(now())
+  likes              Int?                        @default(0)
+  isActive           Boolean                     @default(true)
+  createdAt          DateTime                    @default(now())
+  updatedAt          DateTime                    @default(now())
+}
 
+model CommunityContestCoverPhoto {
+  coverId    String           @id
+  contestId  String           @unique
+  contest    CommunityContest @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  asset_id   String           @unique
+  public_id  String           @unique
+  url        String?
+  secure_url String
 }
 
 model PremiumContest {

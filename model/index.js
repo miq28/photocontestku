@@ -33,7 +33,7 @@ const Album = prisma.album
 const Membership = prisma.membership
 const ContestCategory = prisma.ContestCategory
 const ExpertJudge = prisma.expertjudge
-const CommunityContest = prisma.communitycontest
+const CommunityContest = prisma.CommunityContest
 const PremiumContest = prisma.premiumcontest
 
 // event emitters

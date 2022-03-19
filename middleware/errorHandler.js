@@ -104,7 +104,8 @@ function clientErrorHandler(err, req, res, next) {
 }
 
 function lastErrorHandler(err, req, res, next) {
-    winston.error(lastErrorHandler, err)
+    winston.error('lastErrorHandler %O', err)
+    // console.log(err)
     res.status(500)
     res.json({ error: err })
 }

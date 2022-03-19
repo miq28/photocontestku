@@ -1,37 +1,10 @@
 const { Photo, User, prisma } = require('../../../model')
 const { verifyJWT } = require('../../../middleware/authJwt')
-const uploadPhoto = require('../../../middleware/uploadPhoto')
 const { modifyImagePath, modifyImagePath2ndLayer } = require('../../../middleware/modifyImagePath')
 const { generateSlug, totalUniqueSlugs } = require("random-word-slugs");
-
-// helper function
-/* Parse string tags and convert to object to feed to prisma */
-function parseTagsToArray(commaSeparatedString, tagFieldStr) {
-    const splittedTag = commaSeparatedString.split(',')
-    if (splittedTag.length < 2) return [] // return empty array
-    let array = []
-    for (let i = 0; i < splittedTag.length; i++) {
-        let obj = {}
-        obj[tagFieldStr] = splittedTag[i].trim().toLowerCase()
-        let objFinal = {}
-        objFinal.where = obj
-        objFinal.create = obj
-        array.push(objFinal)
-    }
-    return array
-    /* return value is an array, something like this
-    [
-        {
-            where: { name: 'sport' },
-            create: { name: 'sport' },
-        },
-        {
-            where: { name: 'mountain' },
-            create: { name: 'mountain' },
-        },
-    ]
-    */
-}
+const { DateTime } = require("luxon");
+const tagToArray = require('../../../utils/tagToArray')
+const combinedUploadPhoto = require('../../../middleware/uploadPhoto')
 
 function getRandomIntInclusive(min, max) {
     min = Math.ceil(min);
@@ -49,34 +22,46 @@ const randomSlugsOption = {
 };
 
 //API to upload a photo (or many photos) to a collection/galery User
-const uploadPhotoUser = async (req, res, next) => {
+async function storePhototoDB(req, res, next) {
     var results = []
     try {
 
         for (let i = 0; i < req.files.length; i++) {
 
-            let { title, description, isPrivate, views, likes, downloaded,
-                starRating, tag, albumtitle } = req.body
-
             const file = req.files[i]
 
-            // mock-up values
-            if (!isPrivate) isPrivate = Math.random() < 0.5;
-            if (!views) views = getRandomIntInclusive(50, 1000);
-            if (!likes) likes = getRandomIntInclusive(15, 100);
-            if (!downloaded) downloaded = getRandomIntInclusive(0, 50);
-            if (!starRating) starRating = getRandomIntInclusive(0, 10);
+            let option = {}
 
-            // handle exif
-            let cameraMake, cameraModel, shutterSpeed,
-                aperture, focalLength, iso;
+            let { title, description, isPrivate,
+                tag, albumtitle } = req.body
 
-            file.exif ? cameraMake = file.exif.cameraMake : null
-            file.exif ? cameraModel = file.exif.cameraModel : null
-            file.exif ? shutterSpeed = file.exif.shutterSpeed : null
-            file.exif ? aperture = file.exif.aperture : null
-            file.exif ? focalLength = file.exif.focalLength : null
-            file.exif ? iso = file.exif.iso : null
+            const userId = req.user.id
+            const photoId = file.cloudinary.original_filename
+
+            const photoDetail = {
+                fileName: file.cloudinary.original_filename,
+                originalName: file.originalname,
+                mimeType: file.mimetype,
+                encoding: file.encoding,
+                size: file.cloudinary.bytes,
+                width: file.cloudinary.width,
+                height: file.cloudinary.height,
+                isPrivate: isPrivate || false,
+                cameraMake: file.exif.cameraMake,
+                cameraModel: file.exif.cameraModel,
+                shutterSpeed: file.exif.shutterSpeed,
+                aperture: file.exif.aperture,
+                focalLength: file.exif.focalLength,
+                equiv35: eval(file.cloudinary.exif.FocalLengthIn35mmFilm),
+                iso: file.exif.iso,
+                lat: file.cloudinary.exif.lat,
+                lon: file.cloudinary.exif.lon,
+                dtOriginal: file.cloudinary.exif.DateTimeOriginal ?
+                    DateTime.fromFormat(
+                        file.cloudinary.exif.DateTimeOriginal,
+                        'yyyy:MM:dd hh:mm:ss'
+                    ).toISO() : null
+            }
 
             // handle title
             let photoTitle;
@@ -84,13 +69,9 @@ const uploadPhotoUser = async (req, res, next) => {
                 if (title[i].length < 2) photoTitle = generateSlug(2, { format: "title" })
                 else photoTitle = title[i]
             } else if (title) {
-                if (title.length < 2) {
-                    photoTitle = generateSlug(2, { format: "title" })
-                } else {
-                    photoTitle = title
-                }
+                photoTitle = title
             } else {
-                photoTitle = generateSlug(2, { format: "title" })
+                photoTitle = file.originalname.split('.')[0]
             }
 
 
@@ -112,41 +93,21 @@ const uploadPhotoUser = async (req, res, next) => {
                 photoDesc = generateSlug(3, { format: "sentence" })
             }
 
-            let path = file.path // di sini kita sudah dapat fullpath string dari file yang diupload
-            // get the userid from Jwt
-            const userid = req.user.id
-
-            let option = {}
             option.data = {
-                id: file.cloudinary.asset_id,
+                id: photoId,
                 title: photoTitle,
                 description: photoDesc,
-                path,
-                user: { connect: { id: userid } },
+                path: file.cloudinary.secure_url,
+                asset_id: file.cloudinary.asset_id,
+                public_id: photoId,
+                user: { connect: { id: req.user.id } },
                 photoDetail: {
                     connectOrCreate: {
                         where: {
-                            fileName: file.filename,
+                            photoId: photoId
                         },
                         create: {
-                            fileName: file.filename,
-                            originalName: file.originalname,
-                            mimeType: file.mimetype,
-                            encoding: file.encoding,
-                            size: file.size,
-                            isPrivate: isPrivate || Math.random() < 0.5,
-                            views: views || getRandomIntInclusive(50, 1000),
-                            likes: likes || getRandomIntInclusive(15, 100),
-                            downloaded: downloaded || getRandomIntInclusive(0, 50),
-                            starRating: starRating || getRandomIntInclusive(0, 10),
-                            cameraMake,
-                            cameraModel,
-                            shutterSpeed,
-                            aperture,
-                            focalLength,
-                            iso,
-
-
+                            ...photoDetail
                         }
                     }
                 }
@@ -161,7 +122,7 @@ const uploadPhotoUser = async (req, res, next) => {
                             title: albumtitle
                         },
                         create: {
-                            userId: userid,
+                            userId: userId,
                             title: albumtitle
                         }
                     }
@@ -170,9 +131,11 @@ const uploadPhotoUser = async (req, res, next) => {
             // handle tags
             const tagFieldInDb = 'name' // must match field name 'name' in Tag table
             let tagArray;
-            if (tag && Array.isArray(tag)) {
-                console.log('tag', tag[i], i)
-                tagArray = parseTagsToArray(tag[i], tagFieldInDb)
+            if (tag) {
+                let tagStr;
+                if (Array.isArray(tag)) tagStr = tag[i]
+                else tagStr = tag
+                let tagArray = tagToArray(tagStr, tagFieldInDb)
                 option.data.tags = { connectOrCreate: tagArray }
             }
             // tag && tag.trim() ?
@@ -186,12 +149,15 @@ const uploadPhotoUser = async (req, res, next) => {
             // add photo to db
             const result = await Photo.create(option)
             results.push(result)
-
         }
 
         req.result = results
         next()
     } catch (err) {
+        err.code = arguments
+            .callee
+            .toString()
+            .match(/function ([^\(]+)/)[1]
         next(err)
     }
 }
@@ -242,11 +208,11 @@ const getPhotosByUserId = async (req, res, next) => {
         let result = await Photo.findMany({
             skip,
             take,
-            where: { userId: id },        
+            where: { userId: id },
         })
 
         let count = await Photo.count({
-            where: { userId: id },        
+            where: { userId: id },
         })
         // console.log('count', count)
         req.result = result
@@ -356,11 +322,11 @@ module.exports = routes => {
         getOnePhotoUser,
         modifyImagePath
     )
+
     routes.post('/upload/',
         verifyJWT,
-        uploadPhoto.uploadMultiplePhotos,
-        uploadPhoto.resizeImagesFromDisk,
-        uploadPhotoUser
+        combinedUploadPhoto,
+        storePhototoDB
     )
     routes.put('/',
         verifyJWT,

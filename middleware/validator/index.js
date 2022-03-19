@@ -1,6 +1,7 @@
 // https://express-validator.github.io/docs/
 // https://github.com/validatorjs/validator.js
 const { body, check, oneOf, checkSchema, validationResult } = require('express-validator');
+const validator = require('express-validator');
 
 /**
  * MANDATORY FIELDS
@@ -236,6 +237,24 @@ const ValidateCreateMembership = [
 const ValidateCreateContestCategory = [
     nameContestCategory
 ]
+const ValidateCreateCommunityContest = [
+    // createdById        String?
+    // title              String
+    // constestCategoryId String
+    // startAt            DateTime        @default(now())
+    // endAt              DateTime
+    // ratingStartAt      DateTime
+    // ratingEndtAt       DateTime
+    // coverPhotoPath     String
+    // isJudged           Boolean         @default(false)
+    // brief              String?
+    // entryPhotoId       String?
+    // shortlistPhotoId   String?
+    // winnerPhotoId      String?
+    // tags               Tag[]
+    // likes              Int?            @default(0)
+    // isActive           Boolean         @default(false)
+]
 
 /**
  * Validation check result routine
@@ -243,28 +262,31 @@ const ValidateCreateContestCategory = [
  * to check whether there is/are validation errors or not
  * If error exist, it will throw error with with typeof Array
  */
-const CheckValidatorResult = (async (req, res, next) => {
+const CheckValidatorResult = async (req, res, next) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             throw errors.array()
+            // next(errors)
         }
         next()
     } catch (err) {
         next(err)
     }
-})
+}
 
 /**
  * EXPORTED middlewares
  * self-explanatory
  */
 module.exports = {
+    validator,
     ValidateSignup,
     ValidateLogin,
     ValidateUpdateProfile,
     ValidateCreateAlbum,
     ValidateCreateMembership,
     ValidateCreateContestCategory,
+    ValidateCreateCommunityContest: require('./communitycontest').createCommunityContest,
     CheckValidatorResult
 }

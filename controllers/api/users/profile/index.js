@@ -1,8 +1,8 @@
 const { ROLE, User, Profile } = require('../../../../model')
 const { verifyJWT } = require('../../../../middleware/authJwt')
 const { ValidateUpdateProfile, CheckValidatorResult } = require('../../../../middleware/validator');
-const { resizeImagesFromDisk, uploadSinglePhoto, uploadMultiplePhotos } = require('../../../../middleware/uploadPhoto')
 const { modifyImagePath, modifyImagePath2ndLayer, modifyProfilePhotoPath, modifyProfilePhotoPath2ndLayer } = require('../../../../middleware/modifyImagePath');
+const combinedUploadPhoto = require('../../../../middleware/uploadPhoto')
 
 const getMany = async (req, res, next) => {
     try {
@@ -100,11 +100,14 @@ module.exports = routes => {
         modifyProfilePhotoPath
     );
 
+   
+
     routes.put('/',
         verifyJWT,
         // uploadSinglePhoto,
-        uploadMultiplePhotos,        
-        resizeImagesFromDisk,
+        // uploadMultiplePhotos,        
+        // resizeImagesFromDisk,
+        combinedUploadPhoto,
         ValidateUpdateProfile,
         CheckValidatorResult,
         updateProfile,

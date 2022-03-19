@@ -1,6 +1,6 @@
 const { Album } = require('../../../model')
 const { verifyJWT } = require('../../../middleware/authJwt');
-const { randomUUID } = require('crypto');
+const idGenerator = require('../../../utils/IdGenerator')
 const { ValidateCreateAlbum, CheckValidatorResult, createAlbumSchema } = require('../../../middleware/validator');
 const { modifyImagePath2ndLayer } = require('../../../middleware/modifyImagePath');
 const { generateSlug, totalUniqueSlugs } = require("random-word-slugs");
@@ -12,7 +12,7 @@ const createOne = async (req, res, next) => {
         const id = req.user.id
         let option = {}
         option.data = {
-            id: randomUUID(),
+            id: idGenerator.simple(title),
             title: title,
             description: description? description : generateSlug(10, { format: "sentence" }),
             coverPhotoId: coverPhotoId? coverPhotoId :  'defaultAlbumCover',

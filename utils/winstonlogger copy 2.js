@@ -24,28 +24,26 @@ const logLevels = {
 
 // define the custom settings for each transport (file, console)
 var options = {
-    // file: {
-    //     level: process.env.FILE_LOG_LEVEL || 'debug',
-    //     filename: `${appRoot}/tmp/winston.log`,
-    //     handleExceptions: true,
-    //     handleRejections: true,
-    //     json: true,
-    //     maxsize: 1 * 1024 * 1024, // 1MB
-    //     maxFiles: 1,
-    //     colorize: false,
-    //     format: combine(timestamp(), json()),
-    // },
+    file: {
+        level: process.env.FILE_LOG_LEVEL || 'debug',
+        filename: `${appRoot}/tmp/winston.log`,
+        handleExceptions: true,
+        handleRejections: true,
+        json: true,
+        maxsize: 1 * 1024 * 1024, // 1MB
+        maxFiles: 1,
+        colorize: false,
+        format: combine(timestamp(), json()),
+    },
     console: {
-        // levels: logLevels.levels,
-        // level: process.env.CONSOLE_LOG_LEVEL || 'debug',        
-        // handleExceptions: false,
-        // handleRejections: false,
-        // json: false,
+        levels: logLevels.levels,
+        level: process.env.CONSOLE_LOG_LEVEL || 'debug',        
+        handleExceptions: false,
+        handleRejections: false,
+        json: false,
         format: combine(
-            
-            colorize(),   
             splat(),
-            // simple(),                     
+            colorize(),                        
             printf((info) => {
                 const level = info.level
                 const name = info.name || ''
@@ -75,9 +73,8 @@ const logger = winston.createLogger({
     //     splat(), // <--
     // ),
     transports: [
-        // new winston.transports.File(options.file),
+        new winston.transports.File(options.file),
         new winston.transports.Console(options.console),
-        // new winston.transports.Console(),
     ],
 });
 

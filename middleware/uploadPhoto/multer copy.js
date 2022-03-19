@@ -7,7 +7,7 @@ const path = require('path');
 const crypto = require('crypto');
 var cuid = require('cuid');
 const { sprintf } = require('sprintf-js');
-const winston = require('../utils/winstonlogger');
+const winston = require('../../utils/winstonlogger');
 
 const storeOnMemory = multer.memoryStorage()
 
@@ -94,7 +94,6 @@ const resizeImagesFromDisk = async (req, res, next) => {
         await Promise.all(
             req.files.map(async file => {
                 // const filename = file.originalname.replace(/\..+$/, "");
-                // const newFilename = `bezkoder-${filename}-${Date.now()}.jpeg`;
                 const userId = req.user.userName;
                 const basePath = './public/tmp'
                 // const userDir = sprintf('%010s', userId)

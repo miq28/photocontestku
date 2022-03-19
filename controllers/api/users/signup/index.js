@@ -3,6 +3,7 @@ const { EncriptPassword } = require('../../../../utils/bcrypt');
 const { ValidateSignup, CheckValidatorResult } = require('../../../../middleware/validator')
 const jwt = require('../../../../utils/jsonwebtoken')
 const mailer = require('../../../../middleware/mailer')
+const idGenerator =require('../../../../utils/IdGenerator')
 
 
 // helper functions
@@ -40,6 +41,7 @@ const signup = async (req, res, next) => {
 
         let option = {}
         option.data = {
+            id: idGenerator.simple(userName),
             userName,
             email,
             password: encryptedPassword,

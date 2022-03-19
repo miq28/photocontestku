@@ -1,16 +1,16 @@
 const { ContestCategory } = require('../../../model')
 const jwt = require('../../../middleware/authJwt');
-const cuid = require('cuid');
+const idGenerator = require('../../../utils/IdGenerator');
 const validator = require('../../../middleware/validator');
 const { modifyImagePath2ndLayer } = require('../../../middleware/modifyImagePath');
 const { generateSlug, totalUniqueSlugs } = require("random-word-slugs");
 const winston = require('../../../utils/winstonlogger')
 
-// create one type of membership
+// create one type of contestcategory
 const createContestCategory = async (req, res, next) => {
     try {
         const { name } = req.body
-        const id =  name.replace(/\s+/g, '') + '_' + cuid.slug();
+        const id =  idGenerator.simple(name)
         const option = {
             data: {
                 id, name
@@ -29,11 +29,11 @@ const createContestCategory = async (req, res, next) => {
 module.exports = routes => {
     // disini sama dengan baseurl/api/contestcategory
 
-    // Create a membership
+    // Create a contestcategory
     routes.post('/',
         jwt.verifyJWT,
-        // validator.ValidateCreateContestCategory,
-        // validator.CheckValidatorResult,
+        validator.ValidateCreateContestCategory,
+        validator.CheckValidatorResult,
         createContestCategory
     )
 }

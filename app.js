@@ -8,6 +8,7 @@ const enrouten = require('express-enrouten')
 const path = require('path');
 // const cache = require('./middleware/cache')
 const { responseSuccess } = require('./middleware/responseSuccess')
+const deletePhotoWhenError = require('./middleware/deletePhotoWhenError')
 const { logErrors, clientErrorHandler, lastErrorHandler } = require('./middleware/errorHandler')
 const { handle404 } = require('./middleware/handler404')
 const app = express()
@@ -54,10 +55,14 @@ app.use(enrouten({
 // success response middleware
 app.use(responseSuccess)
 
+// delete photo if error occured
+app.use(deletePhotoWhenError)
+
 // catch errors
 app.use(logErrors)
 app.use(clientErrorHandler)
 app.use(lastErrorHandler)
+
 // error 404 handler
 app.use(handle404)
 

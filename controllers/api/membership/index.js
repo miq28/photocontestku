@@ -1,7 +1,7 @@
 const { Membership } = require('../../../model')
 const { verifyJWT } = require('../../../middleware/authJwt');
-const cuid = require('cuid');
-const { ValidateCreateAlbum, CheckValidatorResult, createAlbumSchema, ValidateCreateMembership } = require('../../../middleware/validator');
+const idGenerator = require('../../../utils/IdGenerator');
+const validator = require('../../../middleware/validator');
 const { modifyImagePath2ndLayer } = require('../../../middleware/modifyImagePath');
 const { generateSlug, totalUniqueSlugs } = require("random-word-slugs");
 const winston = require('../../../utils/winstonlogger')
@@ -12,8 +12,9 @@ const createMembership = async (req, res, next) => {
 
         // insert id to req.body
         // id is combination of name + slug
+        const { name } = req.body
         req.body = {
-            id: req.body.name + '_' + cuid.slug(),
+            id: idGenerator.simple(name),
             ...req.body
         }
         const option = {
@@ -32,13 +33,13 @@ const createMembership = async (req, res, next) => {
 
 
 module.exports = routes => {
-    // disini sama dengan baseurl/api/membership/create
+    // disini sama dengan baseurl/api/membership
 
     // Create a membership
     routes.post('/',
         verifyJWT,
-        ValidateCreateMembership,
-        CheckValidatorResult,
+        validator.ValidateCreateMembership,
+        validator.CheckValidatorResult,
         createMembership
     )
 }

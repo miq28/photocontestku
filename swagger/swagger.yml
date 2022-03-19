@@ -753,6 +753,109 @@ paths:
                 type: object
                 $ref: "#/components/schemas/Album"
                 # $ref: "#/components/examples/Coord"
+
+  /contest/community:
+    get:
+      tags:
+        - CommunityContest
+      summary: Get many with skip & take
+      parameters:
+        - name: isActive
+          in: query
+          description: active / inactive contest
+          required: false
+          schema:
+            type: boolean
+            example: true
+        - name: skip
+          in: query
+          description: skip
+          required: false
+          schema:
+            type: integer
+            example: 0
+        - name: take
+          in: query
+          description: take
+          required: false
+          schema:
+            type: integer
+            example: 5
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                # $ref: "#/components/schemas/Album"
+                # $ref: "#/components/examples/Coord"
+
+    post:
+      tags:
+        - CommunityContest
+      summary: Create Community Contest
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Landscape Bekasi
+                photo:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                constestCategoryId:
+                  type: string
+                  enum: [macro6i2tnd9, streethg5nnbz, nightp0annjf, landscapeuc0nnnd]
+                  example: streethg5nnbz
+                startAt:
+                  type: string
+                  format: date-time
+                  example: 2022-10-06T23:16:15.850Z
+                endAt:
+                  type: string
+                  format: date-time
+                  example: 2022-10-06T23:16:15.850Z
+                ratingStartAt:
+                  type: string
+                  format: date-time
+                  example: 2022-10-06T23:16:15.850Z
+                ratingEndtAt:
+                  type: string
+                  format: date-time
+                  example: 2022-10-06T23:16:15.850Z
+                isJudged:
+                  type: boolean
+                  example: false
+                brief:
+                  type: string
+                  example: A diary writing is a personal record of events and feelings 
+                    affecting the writer.\n It is written for personal record and reflection
+                    therefore, it may not always be objective in its view. It almost 
+                    always details the events occurring in the present. 
+                    It includes facts, observations, perceptions, and descriptions all 
+                    according to the writer’s worldview.
+                tags:
+                  type: string
+                  example: Louis,Vuitton
+                isActive:
+                  type: boolean
+                  example: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                # $ref: "#/components/schemas/Album"
+                # $ref: "#/components/examples/Coord"
+
 components:
   examples:
     ObjectLoginByUserName:
