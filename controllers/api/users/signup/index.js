@@ -3,7 +3,7 @@ const { EncriptPassword } = require('../../../../utils/bcrypt');
 const { ValidateSignup, CheckValidatorResult } = require('../../../../middleware/validator')
 const jwt = require('../../../../utils/jsonwebtoken')
 const mailer = require('../../../../middleware/mailer')
-const idGenerator =require('../../../../utils/IdGenerator')
+const idGenerator =require('../../../../utils/idGenerator')
 
 
 // helper functions

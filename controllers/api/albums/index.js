@@ -1,6 +1,6 @@
 const { Album } = require('../../../model')
 const { verifyJWT } = require('../../../middleware/authJwt');
-const idGenerator = require('../../../utils/IdGenerator')
+const idGenerator = require('../../../utils/idGenerator')
 const { ValidateCreateAlbum, CheckValidatorResult, createAlbumSchema } = require('../../../middleware/validator');
 const { modifyImagePath2ndLayer } = require('../../../middleware/modifyImagePath');
 const { generateSlug, totalUniqueSlugs } = require("random-word-slugs");

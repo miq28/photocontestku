@@ -1,6 +1,6 @@
 const { Membership } = require('../../../model')
 const { verifyJWT } = require('../../../middleware/authJwt');
-const idGenerator = require('../../../utils/IdGenerator');
+const idGenerator = require('../../../utils/idGenerator');
 const validator = require('../../../middleware/validator');
 const { modifyImagePath2ndLayer } = require('../../../middleware/modifyImagePath');
 const { generateSlug, totalUniqueSlugs } = require("random-word-slugs");
