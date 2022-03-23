@@ -4,6 +4,7 @@ const { verifyJWT } = require('../../../../middleware/authJwt');
 const jwt = require('../../../../utils/jsonwebtoken');
 const { ValidateLogin, CheckValidatorResult } = require('../../../../middleware/validator');
 const { body, check, oneOf, checkSchema, validationResult } = require('express-validator');
+const log = require('loglevel');
 
 const login = async (req, res, next) => {
     try {
@@ -12,9 +13,6 @@ const login = async (req, res, next) => {
         option.where = {
             OR: [{ userName: userName }, { email: userName }]
         }
-        option.include = {
-            profile: true
-        };
 
         // check userName/email and password combination
         let user = await User.findFirst(option)
@@ -36,20 +34,26 @@ const login = async (req, res, next) => {
                 lastLoginAt: new Date(Date.now())
             },
             include: {
-                profile: true
+                profile: true,
+                membership: true
             }
         })
 
         // attach user detail to respond
         req.result = user
+        log.warn(user)
 
         // prepare token object
         const tokenObj = {
             id: user.id,
+            membership: user.membership.name,
             userName: user.userName,
             email: user.email,
             role: user.role,
-            isActive: user.isActive
+            isActive: user.isActive,
+            avatar: user.profile.profilePhoto,
+            name: user.profile.name,
+            address: user.profile.address
         }
 
         // generate tokens

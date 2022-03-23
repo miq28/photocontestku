@@ -45,8 +45,8 @@ model User {
   email                    String             @unique @db.VarChar(254)
   password                 String             @db.VarChar(254)
   role                     Role               @default(USER)
-  membership               Membership?        @relation(fields: [membershipId], references: [id])
-  membershipId             String?
+  membership               Membership?        @relation(fields: [membershipName], references: [name])
+  membershipName           String?
   isActive                 Boolean            @default(false)
   profile                  Profile?
   copyright                String?

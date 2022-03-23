@@ -3,6 +3,7 @@ const { verifyJWT } = require('../../../../middleware/authJwt')
 const { ValidateUpdateProfile, CheckValidatorResult } = require('../../../../middleware/validator');
 const { modifyImagePath, modifyImagePath2ndLayer, modifyProfilePhotoPath, modifyProfilePhotoPath2ndLayer } = require('../../../../middleware/modifyImagePath');
 const combinedUploadPhoto = require('../../../../middleware/uploadPhoto')
+const winston = require('../../../../utils/winstonlogger')
 
 const getMany = async (req, res, next) => {
     try {
@@ -32,7 +33,8 @@ const getProfileByUserId = async (req, res, next) => {
         let option = {}
         option.where = { userId: userId }
         const result = await Profile.findUnique(option)
-
+        winston.info('getProfileByUserId %O', result)
+        // if (!result) throw new Error (`User profile NOT found`)
         req.result = result
         next()
     } catch (err) {
@@ -47,7 +49,7 @@ const getProfileByUserName = async (req, res, next) => {
         option.where = { userName: userName }
         option.include = { profile: true }
         const result = await User.findUnique(option)
-        if (!result) throw new Error ('Profile not found')
+        winston.info('getProfileByUserName %O', result)
         req.result = result.profile
         next()
     } catch (err) {

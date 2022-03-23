@@ -1,4 +1,5 @@
 function modifyImagePath(req, res, next) {
+    if (!req.result) return next()
     try {
         const resultObj = req.result
         const objKey = 'path'
@@ -34,6 +35,7 @@ function modifyImagePath(req, res, next) {
 }
 
 function modifyImagePath2ndLayer(req, res, next) {
+    if (!req.result) return next()
     try {
         const resultObj = req.result.photos
         // check if the incoming data is array, e.g. from prisma.getMany
@@ -66,6 +68,7 @@ function modifyImagePath2ndLayer(req, res, next) {
 }
 
 function modifyProfilePhotoPath(req, res, next) {
+    if (!req.result) return next()
     try {
         const resultObj = req.result
         const objKey = 'profilePhoto'
@@ -85,7 +88,7 @@ function modifyProfilePhotoPath(req, res, next) {
         // If not an array, then it must be an object.
         // Check for empty object
         else if (Object.keys(resultObj).length > 0) {
-            // console.log('resultObj must be an Object')
+            console.log('resultObj must be an Object')
             if (resultObj[objKey]) {
                 let photoPath = resultObj[objKey]
                 if (photoPath !== null && !photoPath.match(/http/i)) {
@@ -104,7 +107,8 @@ function modifyProfilePhotoPath(req, res, next) {
 
 }
 
-function modifyProfilePhotoPath2ndLayer(req, res, next) {
+function modifyProfilePhotoPath2ndLayer(err, req, res, next) {
+    if (!req.result) return next()
     try {
         const resultObj = req.result
         // check if the incoming data is array, e.g. from prisma.getMany

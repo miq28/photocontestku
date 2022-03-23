@@ -42,6 +42,11 @@ const signup = async (req, res, next) => {
         let option = {}
         option.data = {
             id: idGenerator.simple(userName),
+            membership: {
+                connect: {
+                    name: 'CROWD'
+                }
+            },
             userName,
             email,
             password: encryptedPassword,
@@ -54,7 +59,8 @@ const signup = async (req, res, next) => {
             },
         }
         option.include = {
-            profile: true
+            profile: true,
+            membership: true
         }
 
         // create user
@@ -69,10 +75,14 @@ const signup = async (req, res, next) => {
         // prepare token object
         const tokenObj = {
             id: createdUser.id,
+            membership: createdUser.membership.name,
             userName: createdUser.userName,
             email: createdUser.email,
             role: createdUser.role,
-            isActive: createdUser.isActive
+            isActive: createdUser.isActive,
+            avatar: createdUser.profile.profilePhoto,
+            name: createdUser.profile.name,
+            address: createdUser.profile.address
         }
 
         // generate tokens

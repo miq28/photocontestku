@@ -47,15 +47,15 @@ async function storePhototoDB(req, res, next) {
                 width: file.cloudinary.width,
                 height: file.cloudinary.height,
                 isPrivate: isPrivate || false,
-                cameraMake: file.exif.cameraMake,
-                cameraModel: file.exif.cameraModel,
-                shutterSpeed: file.exif.shutterSpeed,
-                aperture: file.exif.aperture,
-                focalLength: file.exif.focalLength,
-                equiv35: eval(file.cloudinary.exif.FocalLengthIn35mmFilm),
-                iso: file.exif.iso,
-                lat: file.cloudinary.exif.lat,
-                lon: file.cloudinary.exif.lon,
+                cameraMake: file.exif?.cameraMake,
+                cameraModel: file.exif?.cameraModel,
+                shutterSpeed: file.exif?.shutterSpeed,
+                aperture: file.exif?.aperture,
+                focalLength: file.exif?.focalLength,
+                equiv35: eval(file.cloudinary.exif?.FocalLengthIn35mmFilm),
+                iso: file.exif?.iso,
+                lat: file.cloudinary.exif?.lat,
+                lon: file.cloudinary.exif?.lon,
                 dtOriginal: file.cloudinary.exif.DateTimeOriginal ?
                     DateTime.fromFormat(
                         file.cloudinary.exif.DateTimeOriginal,
@@ -211,12 +211,13 @@ const getPhotosByUserId = async (req, res, next) => {
             where: { userId: id },
         })
 
-        let count = await Photo.count({
+        let max = await Photo.count({
             where: { userId: id },
         })
-        // console.log('count', count)
+        // console.log('max', max)
         req.result = result
-        req.result.count = count
+        req.max = max
+        // console.log(req.result)
         next()
     } catch (err) {
         next(err)

@@ -5,7 +5,9 @@ function responseSuccess(req,res, next) {
             message: 'Success',
             result: req.result,
         }
-        return res.json(response)
+        req.max ? response.max = req.max : null
+        // console.log(response)
+        return res.send(response)
     }
     next()
 }
